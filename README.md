@@ -1,5 +1,7 @@
 # 🐍 Snake-Game
 
+<img src="thumb.jpg" alt="Game Icon" width="400"/>
+
 ![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python) ![Pygame](https://img.shields.io/badge/Pygame-✓-green)
 
 A nostalgic **Snake game** in Python, inspired by the classic Nokia version, with sound effects and customizable skins.  
