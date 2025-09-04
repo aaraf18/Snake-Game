@@ -8,8 +8,12 @@ mixer = pygame.mixer
 # Game constants
 WIDTH = 800
 HEIGHT = 600
-FPS = 10
 CELL_SIZE = 20
+
+# Speed control
+initial_fps = 8        # Start slower
+fps_increment = 0.5     # Speed increase per food eaten
+current_fps = initial_fps
 
 # Music files
 background_music_file = 'duggi-8.wav'
@@ -24,7 +28,6 @@ green_active = (20, 186, 20)
 RED = (255, 0, 0)
 red_active = (199, 20, 20)
 
-
 # Game objects
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Snake Game")
@@ -34,34 +37,27 @@ clock = pygame.time.Clock()
 font_style = pygame.font.SysFont('times new roman', 30)
 
 def play_music(music_file):
-    #Plays background music.
     mixer.init()
     mixer.music.load(music_file)
     mixer.music.play(-1, 0.0)
 
 def play_sound(sound_file):
-    #Plays a sound effect once.
     sound = mixer.Sound(sound_file)
     sound.play()
 
 def draw_text(text, x, y):
-    #Draws text on the screen.
     text_surface = font_style.render(text, True, RED)
     screen.blit(text_surface, (x, y))
 
 def check_collision(x, y, snake_body):
-    #Checks for collisions with walls and the snake's own body.
     if x < 0 or x >= WIDTH or y < 0 or y >= HEIGHT:
         return True
-
     for segment in snake_body[:-1]:
         if segment[0] == x and segment[1] == y:
             return True
-
     return False
 
 def draw_button(text, x, y, width, height, inactive_color, active_color, action=None):
-    #Draws a button with text and handles mouse interaction.
     cursor_pos = pygame.mouse.get_pos()
     button_color = active_color if x < cursor_pos[0] < x + width and y < cursor_pos[1] < y + height else inactive_color
     pygame.draw.rect(screen, button_color, (x, y, width, height))
@@ -74,40 +70,39 @@ def draw_button(text, x, y, width, height, inactive_color, active_color, action=
         action()
 
 def reset_game():
-    #Resets the game state.
-    global snake_body, food_x, food_y, score, snake_direction, game_over
+    global snake_body, food_x, food_y, score, snake_direction, game_over, current_fps
     snake_body = [(WIDTH // 2, HEIGHT // 2)]
     food_x, food_y = generate_food()
     score = 0
     snake_direction = "up"
     game_over = False
+    current_fps = initial_fps
     play_music(background_music_file)
 
 def close_game():
-    #Closes the game.
     pygame.quit()
     quit()
 
 def generate_food():
-    #Generates food at a random location at least 10 pixels away from the borders.
-    min_offset = 10  # Minimum offset from the screen edges in pixels
+    min_offset = 10
     x = random.randint(min_offset // CELL_SIZE, (WIDTH - min_offset) // CELL_SIZE - 1) * CELL_SIZE
     y = random.randint(min_offset // CELL_SIZE, (HEIGHT - min_offset) // CELL_SIZE - 1) * CELL_SIZE
     return x, y
 
-# Load background image
+# Load images
 background_image = pygame.image.load("snakebg.png").convert()
 background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
 
-# Initialize snake and food
-snake_body = [(WIDTH // 2, HEIGHT // 2)]
-snake_direction = "up"
-food_x, food_y = generate_food()
-
-# Load snake image
 snake_image = pygame.image.load("snake_skin.png")
 snake_image = pygame.transform.scale(snake_image, (CELL_SIZE, CELL_SIZE))
 
+food_image = pygame.image.load("food_skin.png")
+food_image = pygame.transform.scale(food_image, (CELL_SIZE, CELL_SIZE))
+
+# Initialize game state
+snake_body = [(WIDTH // 2, HEIGHT // 2)]
+snake_direction = "up"
+food_x, food_y = generate_food()
 running = True
 game_over = False
 score = 0
@@ -158,6 +153,7 @@ while running:
             score += 1
             food_x, food_y = generate_food()
             play_sound(food_eaten_sound_file)
+            current_fps += fps_increment  # Gradually speed up
         else:
             snake_body.pop()
 
@@ -165,9 +161,11 @@ while running:
     for segment in snake_body:
         screen.blit(snake_image, (segment[0], segment[1]))
 
-    pygame.draw.rect(screen, RED, (food_x, food_y, CELL_SIZE, CELL_SIZE))
+    # Draw food with skin
+    screen.blit(food_image, (food_x, food_y))
+
     draw_text("Score: " + str(score), 10, 10)
     pygame.display.flip()
-    clock.tick(FPS)
+    clock.tick(current_fps)
 
 pygame.quit()
