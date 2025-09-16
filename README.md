@@ -37,7 +37,7 @@ A nostalgic **Snake game** in Python, inspired by the classic Nokia version, wit
 ## 🖼 Screenshot
 
 <img src="screenshot.png" alt="Gameplay Screenshot" width="400"/> 
-*(Replace `screenshot.png` with an actual screenshot of the game)*
+<!--*(Replace `screenshot.png` with an actual screenshot of the game)*-->
 
 ---
 
